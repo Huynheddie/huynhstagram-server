@@ -1,0 +1,25 @@
+{
+  "env": {
+    "browser": true,
+    "commonjs": true,
+    "es2020": true,
+    "node": true,
+    "jest": true
+  },
+  "extends": ["airbnb-base", "prettier"],
+  "parserOptions": {
+    "ecmaVersion": 11
+  },
+  "rules": {
+    "linebreak-style": "off",
+    "no-unused-vars": "warn",
+    "no-underscore-dangle": "off",
+    "semi": ["error", "always"],
+    "no-console": "off",
+    "consistent-return": "off",
+    "no-param-reassign": "off",
+    "prefer-destructuring": "off",
+    "no-plusplus": "off",
+    "no-await-in-loop": "off"
+  }
+}

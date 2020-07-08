@@ -1,11 +1,10 @@
-const express = require('express');
-const app = express();
-const port = process.env.PORT || 4001;
-const postsRouter = require('./routes/posts')
+const http = require('http');
+const app = require('./app');
+const config = require('./utils/config');
+const logger = require('./utils/logger');
 
-app.use('/accounts', postsRouter);
-app.get('/', (req, res) => res.send('Hello world!'));
+const server = http.createServer(app);
 
-app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
-})
+server.listen(config.PORT, () => {
+  logger.info(`Listening on port ${config.PORT}`);
+});
