@@ -3,6 +3,8 @@ require('express-async-errors');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const config = require('./utils/config');
+const usersRouter = require('./controllers/users');
+const loginRouter = require('./controllers/login');
 const postsRouter = require('./controllers/posts');
 const middleware = require('./utils/middleware');
 const logger = require('./utils/logger');
@@ -18,9 +20,11 @@ mongoose.connect(config.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology
   });
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 app.use(middleware.requestLogger);
 
+app.use('/users', usersRouter);
+app.use('/login', loginRouter);
 app.use('/posts', postsRouter);
 
 app.use(middleware.unknownEndpoint);

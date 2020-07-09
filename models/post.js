@@ -3,16 +3,19 @@ const mongoose = require('mongoose');
 mongoose.set('useFindAndModify', false);
 
 const postSchema = new mongoose.Schema({
-  userName: {
-    type: String,
-    minlength: 5,
-    required: true
-  },
   date: Date,
   content: {
     type: String,
     required: true
   },
+  imageId: {
+    type: String,
+    required: true
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }
 });
 
 postSchema.set('toJSON', {

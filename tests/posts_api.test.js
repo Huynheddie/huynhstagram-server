@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 const supertest = require('supertest');
+const bcrypt = require('bcrypt');
 const app = require('../app');
 const Post = require('../models/post');
+const User = require('../models/user');
 const helper = require('./api_test_helper');
 
 // If 'Jest did not exit one second after the test run has completed', check part4, 'testing the backend'
@@ -20,22 +22,31 @@ beforeEach(async () => {
 describe('addition of a new post', () => {
     test('succeeds with valid data', async () => {
         const newPost = {
-            userName: 'New Test User',
             date: new Date(),
             content: 'Test Content!'
         };
+
+        const newUser = {
+            username: 'huynheddie',
+            name: 'Eddie Huynh',
+            password: 'spagheddie'
+          };
+      
+        await api.post('/users').send(newUser);
+
+        const loginResponse = await api
+            .post('/login')
+            .send({ username: newUser.username, password: newUser.password });
     
         await api
             .post('/posts')
             .send(newPost)
+            .set('Authorization', `bearer ${loginResponse.body.token}`)
             .expect(200)
             .expect('Content-Type', /application\/json/);
     
         const postsAtEnd = await helper.postsInDb();
         expect(postsAtEnd).toHaveLength(helper.initialPosts.length + 1);
-    
-        const userNames = postsAtEnd.map(p => p.userName);    
-        expect(userNames).toContain('New Test User');
     });
     
     test('fails with status code 400 if data invalid', async () => {
@@ -64,7 +75,7 @@ describe('viewing a specific post', () => {
             .expect(200)
             .expect('Content-Type', /application\/json/);
         
-        expect(resultNote.body.userName).toEqual(postToView.userName);
+        expect(resultNote.body.id).toEqual(postToView.id);
     });
 
     test('fails with status code 404 if post does not exist', async () => {
@@ -98,6 +109,60 @@ describe('deletion of a post', () => {
         expect(postsAtEnd).toHaveLength(helper.initialPosts.length - 1);
     });
 });
+
+describe('when there is initially one user in db', () => {
+    beforeEach(async () => {
+      await User.deleteMany({});
+  
+      const passwordHash = await bcrypt.hash('secret', 10);
+      const user = new User({ username: 'root', passwordHash });
+  
+      await user.save();
+    });
+  
+    test('creation succeeds with a fresh username', async () => {
+      const usersAtStart = await helper.usersInDb();
+  
+      const newUser = {
+        username: 'huynheddie',
+        name: 'Eddie Huynh',
+        password: 'spagheddie'
+      };
+  
+      await api
+        .post('/users')
+        .send(newUser)
+        .expect(200)
+        .expect('Content-Type', /application\/json/);
+  
+      const usersAtEnd = await helper.usersInDb();
+      expect(usersAtEnd).toHaveLength(usersAtStart.length + 1);
+  
+      const usernames = usersAtEnd.map(u => u.username);
+      expect(usernames).toContain(newUser.username);
+    });
+
+    test('creation fails with proper status code and message if username already taken', async () => {
+        const usersAtStart = await helper.usersInDb();
+
+        const newUser = {
+            username: 'root',
+            name: 'superuser',
+            password: 'test'
+        };
+
+        const result = await api
+            .post('/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/);
+        
+        expect(result.body.error).toContain('`username` to be unique');
+
+        const usersAtEnd = await helper.usersInDb();
+        expect(usersAtEnd).toHaveLength(usersAtStart.length);
+    });
+  });
 
 
 afterAll(() => {

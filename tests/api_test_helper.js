@@ -1,18 +1,16 @@
 const Post = require('../models/post');
+const User = require('../models/user');
 
 const initialPosts = [
     {
-        userName: 'Eddie',
         date: new Date(),
         content: 'Hello World - Eddie Huynh'
     },
     {
-        userName: 'Tyler1',
         date: new Date(),
         content: 'Draven OP'
     },
     {
-        userName: 'Midoriya',
         date: new Date(),
         content:'Plus Ultra'
     }
@@ -21,7 +19,6 @@ const initialPosts = [
 const nonExistingId = async () => {
     const post = new Post(
     {
-        userName: 'toberemoved',
         date: new Date(),
         content: 'willremovethissoon'
     });
@@ -36,6 +33,11 @@ const postsInDb = async () => {
     return posts.map(post => post.toJSON());
 };
 
+const usersInDb = async () => {
+    const users = await User.find({});
+    return users.map(user => user.toJSON());
+};
+
 module.exports = {
-    initialPosts, nonExistingId, postsInDb
+    initialPosts, nonExistingId, postsInDb, usersInDb
 };
