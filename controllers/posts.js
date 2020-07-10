@@ -50,6 +50,8 @@ postsRouter.post('/', async (request, response) => {
     const post = new Post({
       date: new Date(),
       content: body.content,
+      likes: [],
+      comments: [],
       imageId: publicImageId,
       user: user._id
     });
@@ -70,10 +72,6 @@ postsRouter.post('/', async (request, response) => {
 postsRouter.put('/:id', async (request, response) => {
   const body = request.body;
 
-  if (body.content === undefined) {
-    return response.status(400).json({ error: 'Content missing' });
-  }
-
   const token = getTokenFrom(request);
   const decodedToken = jwt.verify(token, process.env.SECRET);
   if (!token || !decodedToken.id) {
@@ -88,7 +86,14 @@ postsRouter.put('/:id', async (request, response) => {
     user: user._id
   };
 
-  const updatedPost = await Post.findByIdAndUpdate(request.params.id, post, { new: true });
+  const updatedPost = await Post.findByIdAndUpdate(request.params.id, post, { new: true }).populate('user', { username: 1, name: 1 });
+  response.json(updatedPost.toJSON());
+});
+
+postsRouter.patch('/:id', async (request, response) => {
+  const body = request.body;
+  console.log(body);
+  const updatedPost = await Post.findByIdAndUpdate(request.params.id, body, { new: true }).populate('user', { username: 1, name: 1 });
   response.json(updatedPost.toJSON());
 });
 

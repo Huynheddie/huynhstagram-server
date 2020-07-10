@@ -2,12 +2,23 @@ const mongoose = require('mongoose');
 
 mongoose.set('useFindAndModify', false);
 
+// const commentSchema = new mongoose.Schema({
+//   username: String,
+//   data: String
+// });
+
+// mongoose.model('comment', commentSchema, 'comment');
+
 const postSchema = new mongoose.Schema({
   date: Date,
   content: {
     type: String,
-    required: true
   },
+  likes: [String],
+  comments: [{
+    username: String,
+    comment: String
+  }],
   imageId: {
     type: String,
     required: true
