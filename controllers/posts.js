@@ -13,7 +13,7 @@ const getTokenFrom = request => {
 };
 
 postsRouter.get('/', async (request, response) => {
-  const posts = await Post.find({}).populate('user', { username: 1, name: 1 });
+  const posts = await Post.find({}).populate('user', { username: 1, name: 1, profileImage: 1 });
   response.json(posts);
 });
 
@@ -38,6 +38,7 @@ postsRouter.post('/', async (request, response) => {
   if (!token || !decodedToken.id) {
     return response.status(401).json({ error: 'token missing or invalid' });
   }
+
   try {
     const fileStr = body.imageText;
     const uploadResponse = await cloudinary.uploader.upload(fileStr, {
@@ -86,14 +87,13 @@ postsRouter.put('/:id', async (request, response) => {
     user: user._id
   };
 
-  const updatedPost = await Post.findByIdAndUpdate(request.params.id, post, { new: true }).populate('user', { username: 1, name: 1 });
+  const updatedPost = await Post.findByIdAndUpdate(request.params.id, post, { new: true }).populate('user', { username: 1, name: 1, profileImage: 1 });
   response.json(updatedPost.toJSON());
 });
 
 postsRouter.patch('/:id', async (request, response) => {
   const body = request.body;
-  console.log(body);
-  const updatedPost = await Post.findByIdAndUpdate(request.params.id, body, { new: true }).populate('user', { username: 1, name: 1 });
+  const updatedPost = await Post.findByIdAndUpdate(request.params.id, body, { new: true }).populate('user', { username: 1, name: 1, profileImage: 1 });
   response.json(updatedPost.toJSON());
 });
 

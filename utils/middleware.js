@@ -8,7 +8,12 @@ const requestLogger = (request, response, next) => {
             const modifiedBody = {...request.body};
             delete modifiedBody.imageText;
             console.log('Body (w/o) imageText: ', modifiedBody);
-        } else {
+        } else if (request.method === 'PATCH' && request.body.profileImage) {
+            const modifiedBody = {...request.body};
+            delete modifiedBody.profileImage;
+            console.log('Body (w/o) profileImage: ', modifiedBody);
+        } 
+        else {
             console.log('Body:  ', request.body);
         }
         console.log('---');
