@@ -18,7 +18,7 @@ postsRouter.get('/', async (request, response) => {
 });
 
 postsRouter.get('/:id', async (request, response) => {
-  const post = await Post.findById(request.params.id);
+  const post = await Post.findById(request.params.id).populate('user', { username: 1, name: 1, profileImage: 1 });
   if (post) {
     response.json(post.toJSON());
   } else {
@@ -61,7 +61,8 @@ postsRouter.post('/', async (request, response) => {
     user.posts = user.posts.concat(savedPost._id);
     await user.save();
 
-    response.json(savedPost.toJSON());
+    const returnPost = await Post.findById(savedPost._id).populate('user', { username: 1, name: 1, profileImage: 1 });
+    response.json(returnPost.toJSON());
 
   } catch (error) {
     console.error(error);
