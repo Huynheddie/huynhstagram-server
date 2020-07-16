@@ -2,13 +2,6 @@ const mongoose = require('mongoose');
 
 mongoose.set('useFindAndModify', false);
 
-// const commentSchema = new mongoose.Schema({
-//   username: String,
-//   data: String
-// });
-
-// mongoose.model('comment', commentSchema, 'comment');
-
 const postSchema = new mongoose.Schema({
   date: Date,
   content: {
@@ -16,12 +9,13 @@ const postSchema = new mongoose.Schema({
   },
   likes: [String],
   comments: [{
-    username: String,
-    userId: String,
     comment: String,
-    profileImage: String,
     date: Date,
-    likes: [String]
+    likes: [String],
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }
   }],
   imageId: {
     type: String,

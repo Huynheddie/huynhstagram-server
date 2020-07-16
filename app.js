@@ -6,6 +6,7 @@ const config = require('./utils/config');
 const usersRouter = require('./controllers/users');
 const loginRouter = require('./controllers/login');
 const postsRouter = require('./controllers/posts');
+const commentsRouter = require('./controllers/comments');
 const middleware = require('./utils/middleware');
 const logger = require('./utils/logger');
 
@@ -26,6 +27,7 @@ app.use(middleware.requestLogger);
 app.use('/users', usersRouter);
 app.use('/login', loginRouter);
 app.use('/posts', postsRouter);
+app.use('/comments', commentsRouter);
 
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);

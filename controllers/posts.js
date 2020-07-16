@@ -13,12 +13,33 @@ const getTokenFrom = request => {
 };
 
 postsRouter.get('/', async (request, response) => {
-  const posts = await Post.find({}).populate('user', { username: 1, name: 1, profileImage: 1 });
+  const posts = await Post.find({})
+  .populate({
+    path: 'user', model: 'User', select: 'username name profileImage'
+  })
+  .populate({
+    path: 'comments',
+    populate: [{
+      path: 'user',
+      model: 'User',
+      select: 'username name profileImage'
+    }]
+  });
   response.json(posts);
 });
 
 postsRouter.get('/:id', async (request, response) => {
-  const post = await Post.findById(request.params.id).populate('user', { username: 1, name: 1, profileImage: 1 });
+  const post = await Post.findById(request.params.id).populate({
+    path: 'user', model: 'User', select: 'username name profileImage'
+  })
+  .populate({
+    path: 'comments',
+    populate: [{
+      path: 'user',
+      model: 'User',
+      select: 'username name profileImage'
+    }]
+  });
   if (post) {
     response.json(post.toJSON());
   } else {
@@ -61,7 +82,18 @@ postsRouter.post('/', async (request, response) => {
     user.posts = user.posts.concat(savedPost._id);
     await user.save();
 
-    const returnPost = await Post.findById(savedPost._id).populate('user', { username: 1, name: 1, profileImage: 1 });
+    const returnPost = await Post.findById(savedPost._id)
+    .populate({
+      path: 'user', model: 'User', select: 'username name profileImage'
+    })
+    .populate({
+      path: 'comments',
+      populate: [{
+        path: 'user',
+        model: 'User',
+        select: 'username name profileImage'
+      }]
+    });
     response.json(returnPost.toJSON());
 
   } catch (error) {
@@ -88,13 +120,35 @@ postsRouter.put('/:id', async (request, response) => {
     user: user._id
   };
 
-  const updatedPost = await Post.findByIdAndUpdate(request.params.id, post, { new: true }).populate('user', { username: 1, name: 1, profileImage: 1 });
+  const updatedPost = await Post.findByIdAndUpdate(request.params.id, post, { new: true })
+  .populate({
+    path: 'user', model: 'User', select: 'username name profileImage'
+  })
+  .populate({
+    path: 'comments',
+    populate: [{
+      path: 'user',
+      model: 'User',
+      select: 'username name profileImage'
+    }]
+  });
   response.json(updatedPost.toJSON());
 });
 
 postsRouter.patch('/:id', async (request, response) => {
   const body = request.body;
-  const updatedPost = await Post.findByIdAndUpdate(request.params.id, body, { new: true }).populate('user', { username: 1, name: 1, profileImage: 1 });
+  const updatedPost = await Post.findByIdAndUpdate(request.params.id, body, { new: true })
+  .populate({
+    path: 'user', model: 'User', select: 'username name profileImage'
+  })
+  .populate({
+    path: 'comments',
+    populate: [{
+      path: 'user',
+      model: 'User',
+      select: 'username name profileImage'
+    }]
+  });
   response.json(updatedPost.toJSON());
 });
 
