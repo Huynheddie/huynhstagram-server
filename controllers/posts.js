@@ -47,6 +47,11 @@ postsRouter.get('/:id', async (request, response) => {
   }
 });
 
+postsRouter.get('/byUser/:id', async (request, response) => {
+  const userPosts = await Post.find({ user: request.params.id});
+  response.json(JSON.stringify(userPosts));
+});
+
 postsRouter.post('/', async (request, response) => {
   const body = request.body;
 
