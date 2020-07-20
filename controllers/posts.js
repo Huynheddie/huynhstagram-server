@@ -24,6 +24,16 @@ postsRouter.get('/', async (request, response) => {
       model: 'User',
       select: 'username name profileImage'
     }]
+  }).populate({
+    path: 'comments',
+    populate: [{
+      path: 'likes',
+      populate: [{
+        path: 'user',
+        model: 'User',
+        select: 'username name profileImage'
+      }]
+    }]
   });
   response.json(posts);
 });
@@ -33,11 +43,24 @@ postsRouter.get('/:id', async (request, response) => {
     path: 'user', model: 'User', select: 'username name profileImage'
   })
   .populate({
+    path: 'user', model: 'User', select: 'username name profileImage'
+  })
+  .populate({
     path: 'comments',
     populate: [{
       path: 'user',
       model: 'User',
       select: 'username name profileImage'
+    }]
+  }).populate({
+    path: 'comments',
+    populate: [{
+      path: 'likes',
+      populate: [{
+        path: 'user',
+        model: 'User',
+        select: 'username name profileImage'
+      }]
     }]
   });
   if (post) {
@@ -98,6 +121,16 @@ postsRouter.post('/', async (request, response) => {
         model: 'User',
         select: 'username name profileImage'
       }]
+    }).populate({
+      path: 'comments',
+      populate: [{
+        path: 'likes',
+        populate: [{
+          path: 'user',
+          model: 'User',
+          select: 'username name profileImage'
+        }]
+      }]
     });
     response.json(returnPost.toJSON());
 
@@ -136,6 +169,16 @@ postsRouter.put('/:id', async (request, response) => {
       model: 'User',
       select: 'username name profileImage'
     }]
+  }).populate({
+    path: 'comments',
+    populate: [{
+      path: 'likes',
+      populate: [{
+        path: 'user',
+        model: 'User',
+        select: 'username name profileImage'
+      }]
+    }]
   });
   response.json(updatedPost.toJSON());
 });
@@ -152,6 +195,16 @@ postsRouter.patch('/:id', async (request, response) => {
       path: 'user',
       model: 'User',
       select: 'username name profileImage'
+    }]
+  }).populate({
+    path: 'comments',
+    populate: [{
+      path: 'likes',
+      populate: [{
+        path: 'user',
+        model: 'User',
+        select: 'username name profileImage'
+      }]
     }]
   });
   response.json(updatedPost.toJSON());
