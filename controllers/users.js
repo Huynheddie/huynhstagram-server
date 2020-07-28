@@ -18,13 +18,13 @@ usersRouter.get('/:id', async (request, response) => {
   }
 });
 
+// Registration
 usersRouter.post('/', async (request, response) => {
 
   const body = request.body;
 
   const saltRounds = 10;
   const passwordHash = await bcrypt.hash(body.password, saltRounds);
-
 
   try {
     let profileImage = '';
@@ -62,7 +62,8 @@ usersRouter.post('/', async (request, response) => {
   
 });
 
-usersRouter.patch('/:id', async (request, response) => {
+// Update user profile image
+usersRouter.patch('/profileimage/:id', async (request, response) => {
   const body = request.body;
   try {
     const fileStr = body.profileImage;
@@ -75,8 +76,6 @@ usersRouter.patch('/:id', async (request, response) => {
     };
 
     const oldUser = await User.findById(request.params.id);
-    console.log(oldUser);
-    console.log(oldUser.profileImage);
     cloudinary.api.delete_resources([oldUser.profileImage]);
 
     const updatedUser = await (await User.findByIdAndUpdate(request.params.id, newProfileImage, { new: true})).populated('posts', { content: 1, date: 1 });
@@ -85,6 +84,33 @@ usersRouter.patch('/:id', async (request, response) => {
     console.error(error);
     response.status(500).json({ error: 'update user profile image unsuccessful' });
   }
+});
+
+usersRouter.patch('/followUser', async (request, response) => {
+  const { currentUserId, targetUserId } = request.body;
+
+  const currentUser = await User.findById(currentUserId);
+  const targetUser = await User.findById(targetUserId);
+
+  // Unfollow user
+  if (currentUser.following.includes(targetUserId)) {
+    currentUser.following = currentUser.following.filter(user => !user.equals(targetUserId));
+    await currentUser.save();
+
+    targetUser.followers = targetUser.followers.filter(user => !user.equals(currentUserId));
+    await targetUser.save();
+  } else {
+    currentUser.following.push(targetUserId);
+    await currentUser.save();
+  
+    targetUser.followers.push(currentUserId);
+    await targetUser.save();
+  }
+
+  // console.log('Current user updated following list: ', currentUser.following);
+  // console.log('Target user updated followers: ', targetUser.followers);
+  const users = await User.find({}).populate('posts', { content: 1, date: 1 });
+  response.json(users);
 });
 
 module.exports = usersRouter;
