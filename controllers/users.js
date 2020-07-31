@@ -113,4 +113,9 @@ usersRouter.patch('/followUser', async (request, response) => {
   response.json(users);
 });
 
+usersRouter.delete('/:id', async (request, response) => {
+  const deleteResponse = await User.findByIdAndDelete(request.params.id);
+  response.json(deleteResponse);
+});
+
 module.exports = usersRouter;
