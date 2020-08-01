@@ -103,4 +103,34 @@ commentsRouter.patch('/dislike/:id', async (request, response) => {
   response.json(updatedPost.toJSON());
 });
 
+commentsRouter.patch('/remove', async (request, response) => {
+  const { postId, commentId } = request.body;
+  const post = await Post.findById(postId);
+  post.comments = post.comments.filter(comment => comment.id !== commentId);
+  await post.save();
+  const updatedPost = await Post.findById(postId)
+  .populate({
+    path: 'user', model: 'User', select: 'username name profileImage'
+  })
+  .populate({
+    path: 'comments',
+    populate: [{
+      path: 'user',
+      model: 'User',
+      select: 'username name profileImage'
+    }]
+  }).populate({
+    path: 'comments',
+    populate: [{
+      path: 'likes',
+      populate: [{
+        path: 'user',
+        model: 'User',
+        select: 'username name profileImage'
+      }]
+    }]
+  });
+  response.json(updatedPost.toJSON());
+});
+
 module.exports = commentsRouter;

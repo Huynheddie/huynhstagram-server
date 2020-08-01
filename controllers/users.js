@@ -10,7 +10,27 @@ usersRouter.get('/', async (request, response) => {
 });
 
 usersRouter.get('/:id', async (request, response) => {
-  const user = await User.findById(request.params.id).populate('posts', { content: 1, date: 1 });
+  const user = await User.findById(request.params.id)
+  .populate('posts', { content: 1, date: 1 })
+  .populate('followers')
+  .populate('following')
+  .populate({
+    path: 'followers',
+    populate: [{
+      path: 'followers'
+    }, {
+      path: 'following'
+    }
+  ] 
+  })
+  .populate({
+    path: 'following',
+    populate: [{
+      path: 'following'
+    }, {
+      path: 'followers'
+    }] 
+  });
   if (user) {
     response.json(user);
   } else {
@@ -109,7 +129,27 @@ usersRouter.patch('/followUser', async (request, response) => {
 
   // console.log('Current user updated following list: ', currentUser.following);
   // console.log('Target user updated followers: ', targetUser.followers);
-  const users = await User.find({}).populate('posts', { content: 1, date: 1 });
+  const users = await User.find({})
+  .populate('posts', { content: 1, date: 1 })
+  .populate('followers')
+  .populate('following')
+  .populate({
+    path: 'followers',
+    populate: [{
+      path: 'followers'
+    }, {
+      path: 'following'
+    }
+  ] 
+  })
+  .populate({
+    path: 'following',
+    populate: [{
+      path: 'following'
+    }, {
+      path: 'followers'
+    }] 
+  });
   response.json(users);
 });
 
