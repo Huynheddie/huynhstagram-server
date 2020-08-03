@@ -22,6 +22,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.5.9",
     "mongoose": "^5.9.21",
+    "mongoose-deep-populate": "^3.2.0",
     "mongoose-unique-validator": "^2.0.3",
     "nodemon": "^2.0.4"
   },

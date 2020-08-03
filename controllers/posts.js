@@ -34,6 +34,14 @@ postsRouter.get('/', async (request, response) => {
         select: 'username name profileImage'
       }]
     }]
+  })
+  .populate('likes')
+  .populate({
+    path: 'likes',
+    populate: [{
+      path: 'followers',
+      model: 'User',
+    }]
   });
   response.json(posts);
 });
@@ -61,6 +69,14 @@ postsRouter.get('/:id', async (request, response) => {
         model: 'User',
         select: 'username name profileImage'
       }]
+    }]
+  })
+  .populate('likes')
+  .populate({
+    path: 'likes',
+    populate: [{
+      path: 'followers',
+      model: 'User',
     }]
   });
   if (post) {
@@ -131,6 +147,14 @@ postsRouter.post('/', async (request, response) => {
           select: 'username name profileImage'
         }]
       }]
+    })
+    .populate('likes')
+    .populate({
+      path: 'likes',
+      populate: [{
+        path: 'followers',
+        model: 'User',
+      }]
     });
     response.json(returnPost.toJSON());
 
@@ -179,6 +203,14 @@ postsRouter.put('/:id', async (request, response) => {
         select: 'username name profileImage'
       }]
     }]
+  })
+  .populate('likes')
+  .populate({
+    path: 'likes',
+    populate: [{
+      path: 'followers',
+      model: 'User',
+    }]
   });
   response.json(updatedPost.toJSON());
 });
@@ -206,8 +238,59 @@ postsRouter.patch('/:id', async (request, response) => {
         select: 'username name profileImage'
       }]
     }]
+  })
+  .populate('likes')
+  .populate({
+    path: 'likes',
+    populate: [{
+      path: 'followers',
+      model: 'User',
+    }]
   });
   response.json(updatedPost.toJSON());
+});
+
+// Add or remove like
+postsRouter.patch('/like/:id', async (request, response) => {
+  const body = request.body;
+  const post = await Post.findById(request.params.id);
+  if (post.likes.includes(body.userId)) {
+    post.likes = post.likes.filter(x => x.toString() !== body.userId);
+  } else {
+    post.likes.push(body.userId);
+  }
+  await post.save();
+  const updatedPost = await Post.findById(request.params.id)
+  .populate({
+    path: 'user', model: 'User', select: 'username name profileImage'
+  })
+  .populate({
+    path: 'comments',
+    populate: [{
+      path: 'user',
+      model: 'User',
+      select: 'username name profileImage'
+    }]
+  }).populate({
+    path: 'comments',
+    populate: [{
+      path: 'likes',
+      populate: [{
+        path: 'user',
+        model: 'User',
+        select: 'username name profileImage'
+      }]
+    }]
+  })
+  .populate('likes')
+  .populate({
+    path: 'likes',
+    populate: [{
+      path: 'followers',
+      model: 'User',
+    }]
+  });
+  response.json(updatedPost);
 });
 
 postsRouter.delete('/:id', async (request, response) => {

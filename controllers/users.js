@@ -5,7 +5,27 @@ const User = require('../models/user');
 const { cloudinary } = require('../utils/cloudinary');
 
 usersRouter.get('/', async (request, response) => {
-  const users = await User.find({}).populate('posts', { content: 1, date: 1 });
+  const users = await User.find({})
+  .populate('posts', { content: 1, date: 1 })
+  .populate('followers')
+  .populate('following')
+  .populate({
+    path: 'followers',
+    populate: [{
+      path: 'followers'
+    }, {
+      path: 'following'
+    }
+  ] 
+  })
+  .populate({
+    path: 'following',
+    populate: [{
+      path: 'following'
+    }, {
+      path: 'followers'
+    }] 
+  });
   response.json(users);
 });
 
