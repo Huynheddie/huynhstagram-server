@@ -16,16 +16,13 @@ commentsRouter.post('/:id', async (request, response)  => {
     populate: [{
       path: 'user',
       model: 'User',
-      select: 'username name profileImage'
     }]
   }).populate({
     path: 'comments',
     populate: [{
       path: 'likes',
       populate: [{
-        path: 'user',
-        model: 'User',
-        select: 'username name profileImage'
+        path: 'followers',
       }]
     }]
   });
@@ -40,7 +37,7 @@ commentsRouter.patch('/like/:id', async (request, response) => {
 
   const post = await Post.findById(postId);
   const commentIndex = post.comments.findIndex(comment => comment._id.toString() === commentId);
-  post.comments[commentIndex].likes.push({ user: userId });
+  post.comments[commentIndex].likes.push(userId);
   await post.save();
   const updatedPost = await Post.findById(postId)
   .populate({
@@ -51,19 +48,26 @@ commentsRouter.patch('/like/:id', async (request, response) => {
     populate: [{
       path: 'user',
       model: 'User',
-      select: 'username name profileImage'
     }]
-  }).populate({
+  })
+  .populate({
     path: 'comments',
     populate: [{
       path: 'likes',
       populate: [{
-        path: 'user',
-        model: 'User',
-        select: 'username name profileImage'
+        path: 'followers',
       }]
     }]
-  });
+  })
+  .populate('likes')
+  .populate({
+    path: 'likes',
+    populate: [{
+      path: 'followers',
+      model: 'User',
+    }]
+  });;
+  console.log(updatedPost);
   response.json(updatedPost.toJSON());
 });
 
@@ -75,7 +79,7 @@ commentsRouter.patch('/dislike/:id', async (request, response) => {
 
   const post = await Post.findById(postId);
   const commentIndex = post.comments.findIndex(comment => comment._id.toString() === commentId);
-  post.comments[commentIndex].likes = post.comments[commentIndex].likes.filter(like => like.user.toString() !== userId);
+  post.comments[commentIndex].likes = post.comments[commentIndex].likes.filter(like => like.toString() !== userId);
   await post.save();
   const updatedPost = await Post.findById(postId)
   .populate({
@@ -86,7 +90,6 @@ commentsRouter.patch('/dislike/:id', async (request, response) => {
     populate: [{
       path: 'user',
       model: 'User',
-      select: 'username name profileImage'
     }]
   })
   .populate({
@@ -94,12 +97,19 @@ commentsRouter.patch('/dislike/:id', async (request, response) => {
     populate: [{
       path: 'likes',
       populate: [{
-        path: 'user',
-        model: 'User',
-        select: 'username name profileImage'
+        path: 'followers',
       }]
     }]
-  });
+  })
+  .populate('likes')
+  .populate({
+    path: 'likes',
+    populate: [{
+      path: 'followers',
+      model: 'User',
+    }]
+  });;
+  console.log(updatedPost);
   response.json(updatedPost.toJSON());
 });
 
@@ -117,19 +127,25 @@ commentsRouter.patch('/remove', async (request, response) => {
     populate: [{
       path: 'user',
       model: 'User',
-      select: 'username name profileImage'
     }]
-  }).populate({
-    path: 'comments',
-    populate: [{
-      path: 'likes',
+  })
+  .populate({
+      path: 'comments',
       populate: [{
-        path: 'user',
-        model: 'User',
-        select: 'username name profileImage'
+        path: 'likes',
+        populate: [{
+          path: 'followers',
+        }]
       }]
+    })
+  .populate('likes')
+  .populate({
+    path: 'likes',
+    populate: [{
+      path: 'followers',
+      model: 'User',
     }]
-  });
+  });;
   response.json(updatedPost.toJSON());
 });
 

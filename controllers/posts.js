@@ -22,16 +22,14 @@ postsRouter.get('/', async (request, response) => {
     populate: [{
       path: 'user',
       model: 'User',
-      select: 'username name profileImage'
     }]
-  }).populate({
+  })
+  .populate({
     path: 'comments',
     populate: [{
       path: 'likes',
       populate: [{
-        path: 'user',
-        model: 'User',
-        select: 'username name profileImage'
+        path: 'followers',
       }]
     }]
   })
@@ -58,16 +56,15 @@ postsRouter.get('/:id', async (request, response) => {
     populate: [{
       path: 'user',
       model: 'User',
-      select: 'username name profileImage'
     }]
-  }).populate({
+  })
+  .populate({
     path: 'comments',
     populate: [{
       path: 'likes',
       populate: [{
-        path: 'user',
-        model: 'User',
-        select: 'username name profileImage'
+        path: 'followers',
+        model: 'User'
       }]
     }]
   })
@@ -135,16 +132,14 @@ postsRouter.post('/', async (request, response) => {
       populate: [{
         path: 'user',
         model: 'User',
-        select: 'username name profileImage'
       }]
-    }).populate({
+    })
+    .populate({
       path: 'comments',
       populate: [{
         path: 'likes',
         populate: [{
-          path: 'user',
-          model: 'User',
-          select: 'username name profileImage'
+          path: 'followers',
         }]
       }]
     })
@@ -191,16 +186,14 @@ postsRouter.put('/:id', async (request, response) => {
     populate: [{
       path: 'user',
       model: 'User',
-      select: 'username name profileImage'
     }]
-  }).populate({
+  })
+  .populate({
     path: 'comments',
     populate: [{
       path: 'likes',
       populate: [{
-        path: 'user',
-        model: 'User',
-        select: 'username name profileImage'
+        path: 'followers',
       }]
     }]
   })
@@ -226,16 +219,14 @@ postsRouter.patch('/:id', async (request, response) => {
     populate: [{
       path: 'user',
       model: 'User',
-      select: 'username name profileImage'
     }]
-  }).populate({
+  })
+  .populate({
     path: 'comments',
     populate: [{
       path: 'likes',
       populate: [{
-        path: 'user',
-        model: 'User',
-        select: 'username name profileImage'
+        path: 'followers',
       }]
     }]
   })
@@ -269,16 +260,14 @@ postsRouter.patch('/like/:id', async (request, response) => {
     populate: [{
       path: 'user',
       model: 'User',
-      select: 'username name profileImage'
     }]
-  }).populate({
+  })
+  .populate({
     path: 'comments',
     populate: [{
       path: 'likes',
       populate: [{
-        path: 'user',
-        model: 'User',
-        select: 'username name profileImage'
+        path: 'followers',
       }]
     }]
   })
