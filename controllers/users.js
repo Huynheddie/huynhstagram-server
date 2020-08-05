@@ -90,7 +90,8 @@ usersRouter.post('/', async (request, response) => {
       username: body.username,
       name: body.name,
       profileImage,
-      passwordHash
+      passwordHash,
+      biography: '',
     });
 
     const savedUser = await user.save();
@@ -171,6 +172,36 @@ usersRouter.patch('/followUser', async (request, response) => {
     }] 
   });
   response.json(users);
+});
+
+usersRouter.patch('/biography/:id', async (request, response) => {
+  const user = await User.findById(request.params.id);
+  const body = request.body;
+
+  user.biography = body.newBio;
+  await user.save();
+  const updatedUser = await User.findById(request.params.id)
+  .populate('posts', { content: 1, date: 1 })
+  .populate('followers')
+  .populate('following')
+  .populate({
+    path: 'followers',
+    populate: [{
+      path: 'followers'
+    }, {
+      path: 'following'
+    }
+  ] 
+  })
+  .populate({
+    path: 'following',
+    populate: [{
+      path: 'following'
+    }, {
+      path: 'followers'
+    }] 
+  });
+  response.json(updatedUser);
 });
 
 usersRouter.delete('/:id', async (request, response) => {

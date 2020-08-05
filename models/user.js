@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   name: String,
   profileImage: String,
   passwordHash: String,
+  biography: String,
   posts: [
     {
       type: mongoose.Schema.Types.ObjectId,
