@@ -25,6 +25,14 @@ commentsRouter.post('/:id', async (request, response)  => {
         path: 'followers',
       }]
     }]
+  })
+  .populate('likes')
+  .populate({
+    path: 'likes',
+    populate: [{
+      path: 'followers',
+      model: 'User',
+    }]
   });
   response.json(updatedPost.toJSON());
 }); 
@@ -66,7 +74,7 @@ commentsRouter.patch('/like/:id', async (request, response) => {
       path: 'followers',
       model: 'User',
     }]
-  });;
+  });
   console.log(updatedPost);
   response.json(updatedPost.toJSON());
 });
