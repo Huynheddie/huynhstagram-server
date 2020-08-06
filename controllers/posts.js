@@ -2,6 +2,7 @@ const postsRouter = require('express').Router();
 const jwt = require('jsonwebtoken');
 const Post = require('../models/post');
 const User = require('../models/user');
+const config = require('../utils/config');
 const { cloudinary } = require('../utils/cloudinary');
 
 const getTokenFrom = request => {
@@ -45,9 +46,7 @@ postsRouter.get('/', async (request, response) => {
 });
 
 postsRouter.get('/:id', async (request, response) => {
-  const post = await Post.findById(request.params.id).populate({
-    path: 'user', model: 'User', select: 'username name profileImage'
-  })
+  const post = await Post.findById(request.params.id)
   .populate({
     path: 'user', model: 'User', select: 'username name profileImage'
   })
@@ -64,7 +63,6 @@ postsRouter.get('/:id', async (request, response) => {
       path: 'likes',
       populate: [{
         path: 'followers',
-        model: 'User'
       }]
     }]
   })
@@ -77,14 +75,41 @@ postsRouter.get('/:id', async (request, response) => {
     }]
   });
   if (post) {
-    response.json(post.toJSON());
+    response.json(post);
   } else {
     response.status(404).end();
   }
 });
 
 postsRouter.get('/byUser/:id', async (request, response) => {
-  const userPosts = await Post.find({ user: request.params.id});
+  const userPosts = await Post.find({ user: request.params.id})
+  .populate({
+    path: 'user', model: 'User', select: 'username name profileImage'
+  })
+  .populate({
+    path: 'comments',
+    populate: [{
+      path: 'user',
+      model: 'User',
+    }]
+  })
+  .populate({
+    path: 'comments',
+    populate: [{
+      path: 'likes',
+      populate: [{
+        path: 'followers',
+      }]
+    }]
+  })
+  .populate('likes')
+  .populate({
+    path: 'likes',
+    populate: [{
+      path: 'followers',
+      model: 'User',
+    }]
+  });
   response.json(JSON.stringify(userPosts));
 });
 
@@ -104,7 +129,7 @@ postsRouter.post('/', async (request, response) => {
   try {
     const fileStr = body.imageText;
     const uploadResponse = await cloudinary.uploader.upload(fileStr, {
-      upload_preset: 'dev-testing'
+      upload_preset: config.CLOUDINARY_PRESET_POSTS
     });
     const publicImageId = uploadResponse.public_id;
 

@@ -2,6 +2,8 @@ const bcrypt = require('bcrypt');
 const usersRouter = require('express').Router();
 const path = require('path');
 const User = require('../models/user');
+const Post = require('../models/post');
+const config = require('../utils/config');
 const { cloudinary } = require('../utils/cloudinary');
 
 usersRouter.get('/', async (request, response) => {
@@ -76,7 +78,7 @@ usersRouter.post('/', async (request, response) => {
       // console.log('Need to upload default pic');
       const picPath = path.join(__dirname, '..', 'images', 'default-user.jpg');
       const uploadResponse = await cloudinary.uploader.upload(picPath, {
-        upload_preset: 'user-testing',
+        upload_preset: config.CLOUDINARY_PRESET_USERS,
         context: 'name=default-user-picture'
       });
       profileImage = uploadResponse.public_id;
@@ -109,7 +111,7 @@ usersRouter.patch('/profileimage/:id', async (request, response) => {
   try {
     const fileStr = body.profileImage;
     const uploadResponse = await cloudinary.uploader.upload(fileStr, {
-      upload_preset: 'user-testing'
+      upload_preset: config.CLOUDINARY_PRESET_USERS
     });
     const publicImageId = uploadResponse.public_id;
     const newProfileImage= {
@@ -205,6 +207,7 @@ usersRouter.patch('/biography/:id', async (request, response) => {
 });
 
 usersRouter.delete('/:id', async (request, response) => {
+  await Post.deleteMany({ user: `${request.params.id}` });
   const deleteResponse = await User.findByIdAndDelete(request.params.id);
   response.json(deleteResponse);
 });
