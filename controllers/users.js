@@ -207,7 +207,12 @@ usersRouter.patch('/biography/:id', async (request, response) => {
 });
 
 usersRouter.delete('/:id', async (request, response) => {
+  const posts = await Post.find({user:`${request.params.id}` });
+  const imageIds = posts.map(post => post.imageId);
+  cloudinary.api.delete_resources(imageIds);
   await Post.deleteMany({ user: `${request.params.id}` });
+  const user = await User.findById(request.params.id);
+  cloudinary.api.delete_all_resources([user.profileImage]);
   const deleteResponse = await User.findByIdAndDelete(request.params.id);
   response.json(deleteResponse);
 });
