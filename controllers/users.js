@@ -70,24 +70,31 @@ usersRouter.post('/', async (request, response) => {
 
   try {
     let profileImage = '';
-    const defaultPicture = await cloudinary.search
-    .expression('context.name=default-user-picture')
-    .execute();
+    // const defaultPicture = await cloudinary.search
+    // .expression('context.name=default-user-picture')
+    // .execute();
 
-    if (defaultPicture.total_count === 0) {
-      // console.log('Need to upload default pic');
-      const picPath = path.join(__dirname, '..', 'images', 'default-user.jpg');
-      const uploadResponse = await cloudinary.uploader.upload(picPath, {
-        upload_preset: config.CLOUDINARY_PRESET_USERS,
-        context: 'name=default-user-picture'
-      });
-      profileImage = uploadResponse.public_id;
+    // if (defaultPicture.total_count === 0) {
+    //   // console.log('Need to upload default pic');
+    //   const picPath = path.join(__dirname, '..', 'images', 'default-user.jpg');
+    //   const uploadResponse = await cloudinary.uploader.upload(picPath, {
+    //     upload_preset: config.CLOUDINARY_PRESET_USERS,
+    //     context: 'name=default-user-picture'
+    //   });
+    //   profileImage = uploadResponse.public_id;
 
-    } else {
-      // console.log('Already uploaded');
-      profileImage = defaultPicture.resources[0].public_id;
-    }
+    // } else {
+    //   // console.log('Already uploaded');
+    //   profileImage = defaultPicture.resources[0].public_id;
+    // }
 
+    const picPath = path.join(__dirname, '..', 'images', 'default-user.jpg');
+    const uploadResponse = await cloudinary.uploader.upload(picPath, {
+      upload_preset: config.CLOUDINARY_PRESET_USERS,
+      context: 'name=default-user-picture'
+    });
+    
+    profileImage = uploadResponse.public_id;
     const user = new User({
       username: body.username,
       name: body.name,
