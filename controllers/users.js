@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const usersRouter = require('express').Router();
 const path = require('path');
+const Fuse = require('fuse.js');
 const User = require('../models/user');
 const Post = require('../models/post');
 const config = require('../utils/config');
@@ -60,10 +61,32 @@ usersRouter.get('/:id', async (request, response) => {
   }
 });
 
+usersRouter.get('/search/:username', async (request, response) => {
+  // const users = await User.find({ username: { $regex : new RegExp(`(.*)${request.params.username.toLowerCase()}(.*)`, "i")} });
+  // response.json(users);
+  const users = await User.find({});
+
+  const fuse = new Fuse(users, {
+    keys: ['username'],
+    includeScore: true,
+    threshold: .4
+  });
+
+  const searchResult = fuse.search(request.params.username);
+  // console.log(searchResult);
+  response.json(searchResult.map(result => result.item));
+});
+
 // Registration
 usersRouter.post('/', async (request, response) => {
 
   const body = request.body;
+  const existingUser = await User.findOne({ username: body.username });
+
+  if (existingUser) {
+    response.status(500).json({ error: 'registering user unsuccessful' });
+    return;
+  }
 
   const saltRounds = 10;
   const passwordHash = await bcrypt.hash(body.password, saltRounds);
@@ -197,12 +220,12 @@ usersRouter.patch('/biography/:id', async (request, response) => {
 });
 
 usersRouter.delete('/:id', async (request, response) => {
-  const posts = await Post.find({user:`${request.params.id}` });
+  const posts = await Post.find({user:`${request.params.id}`});
   const imageIds = posts.map(post => post.imageId);
   cloudinary.api.delete_resources(imageIds);
   await Post.deleteMany({ user: `${request.params.id}` });
   const user = await User.findById(request.params.id);
-  cloudinary.api.delete_all_resources([user.profileImage]);
+  cloudinary.api.delete_resources([user.profileImage]);
   const deleteResponse = await User.findByIdAndDelete(request.params.id);
   response.json(deleteResponse);
 });
