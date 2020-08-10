@@ -73,7 +73,6 @@ usersRouter.get('/search/:username', async (request, response) => {
   });
 
   const searchResult = fuse.search(request.params.username);
-  // console.log(searchResult);
   response.json(searchResult.map(result => result.item));
 });
 
@@ -163,8 +162,6 @@ usersRouter.patch('/followUser', async (request, response) => {
     await targetUser.save();
   }
 
-  // console.log('Current user updated following list: ', currentUser.following);
-  // console.log('Target user updated followers: ', targetUser.followers);
   const users = await User.find({})
   .populate('posts', { content: 1, date: 1 })
   .populate('followers')
@@ -220,9 +217,17 @@ usersRouter.patch('/biography/:id', async (request, response) => {
 });
 
 usersRouter.delete('/:id', async (request, response) => {
+  const postsCommented = await Post.find({ 'comments.user': request.params.id });
+
+  for (let index = 0; index < postsCommented.length; index++) {
+    postsCommented[index].comments = postsCommented[index].comments.filter(comment => comment.user.toString() !== request.params.id);
+    await postsCommented[index].save();
+  }
+
   const posts = await Post.find({user:`${request.params.id}`});
   const imageIds = posts.map(post => post.imageId);
   cloudinary.api.delete_resources(imageIds);
+
   await Post.deleteMany({ user: `${request.params.id}` });
   const user = await User.findById(request.params.id);
   cloudinary.api.delete_resources([user.profileImage]);

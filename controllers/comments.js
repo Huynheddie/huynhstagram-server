@@ -76,7 +76,6 @@ commentsRouter.patch('/like/:id', async (request, response) => {
       model: 'User',
     }]
   });
-  console.log(updatedPost);
   response.json(updatedPost.toJSON());
 });
 
@@ -118,7 +117,6 @@ commentsRouter.patch('/dislike/:id', async (request, response) => {
       model: 'User',
     }]
   });
-  console.log(updatedPost);
   response.json(updatedPost.toJSON());
 });
 
